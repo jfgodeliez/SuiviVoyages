@@ -1,5 +1,6 @@
-# SuiviVoyages
 Cette application à pour but de gérer la planification de nos voyages.
+
+L'application sera multi-utilisateurs et nécessitera donc une gestion des comptes et des droits.
 
 L'application devra être consultable sur smartphone (Android) et avoir un mode déconnecté.
 Il faut pouvoir ajouter un voyage avec un titre, une date de début et de fin, une description.
