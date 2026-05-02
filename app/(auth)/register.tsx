@@ -12,21 +12,23 @@ import {
 import { router } from 'expo-router';
 import { FormField } from '../../src/components/FormField';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
-import { useLoginForm } from '../../src/hooks/useAuthForm';
-import { signIn } from '../../src/services/authService';
+import { useRegisterForm } from '../../src/hooks/useAuthForm';
+import { signUp } from '../../src/services/authService';
 
-export default function LoginScreen() {
-  const { form, errors, setField, validate } = useLoginForm();
+export default function RegisterScreen() {
+  const { form, errors, setField, validate } = useRegisterForm();
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     if (!validate()) return;
     setLoading(true);
     try {
-      await signIn(form.email, form.password);
-      router.replace('/(app)/trips');
+      await signUp(form.email, form.password, form.displayName);
+      Alert.alert('Inscription réussie', 'Vérifiez votre email pour confirmer votre compte.', [
+        { text: 'OK', onPress: () => router.replace('/(auth)/login') },
+      ]);
     } catch (err: unknown) {
-      Alert.alert('Erreur', err instanceof Error ? err.message : 'Connexion impossible.');
+      Alert.alert('Erreur', err instanceof Error ? err.message : 'Inscription impossible.');
     } finally {
       setLoading(false);
     }
@@ -39,8 +41,16 @@ export default function LoginScreen() {
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <Text style={styles.logo}>✈️ SuiviVoyages</Text>
-        <Text style={styles.title}>Connexion</Text>
+        <Text style={styles.title}>Créer un compte</Text>
 
+        <FormField
+          label="Nom affiché"
+          value={form.displayName}
+          onChangeText={(v) => setField('displayName', v)}
+          error={errors.displayName}
+          placeholder="Marie Dupont"
+          autoCapitalize="words"
+        />
         <FormField
           label="Email"
           value={form.email}
@@ -57,21 +67,22 @@ export default function LoginScreen() {
           onChangeText={(v) => setField('password', v)}
           error={errors.password}
           secureTextEntry
+          placeholder="Min. 8 caractères, 1 majuscule, 1 chiffre"
+        />
+        <FormField
+          label="Confirmer le mot de passe"
+          value={form.confirmPassword}
+          onChangeText={(v) => setField('confirmPassword', v)}
+          error={errors.confirmPassword}
+          secureTextEntry
           placeholder="••••••••"
         />
 
-        <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
-          <Text style={styles.link}>Mot de passe oublié ?</Text>
-        </TouchableOpacity>
+        <PrimaryButton title="S'inscrire" onPress={handleRegister} loading={loading} />
 
-        <PrimaryButton title="Se connecter" onPress={handleLogin} loading={loading} />
-
-        <TouchableOpacity
-          style={styles.registerRow}
-          onPress={() => router.push('/(auth)/register')}
-        >
-          <Text style={styles.registerText}>
-            Pas encore de compte ? <Text style={styles.link}>S&apos;inscrire</Text>
+        <TouchableOpacity style={styles.loginRow} onPress={() => router.back()}>
+          <Text style={styles.loginText}>
+            Déjà un compte ? <Text style={styles.link}>Se connecter</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -85,6 +96,6 @@ const styles = StyleSheet.create({
   logo: { fontSize: 28, fontWeight: '800', color: '#1a73e8', textAlign: 'center', marginBottom: 8 },
   title: { fontSize: 22, fontWeight: '700', color: '#111', textAlign: 'center', marginBottom: 28 },
   link: { color: '#1a73e8', fontWeight: '600', fontSize: 14 },
-  registerRow: { marginTop: 24, alignItems: 'center' },
-  registerText: { fontSize: 14, color: '#555' },
+  loginRow: { marginTop: 24, alignItems: 'center' },
+  loginText: { fontSize: 14, color: '#555' },
 });
