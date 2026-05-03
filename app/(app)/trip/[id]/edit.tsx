@@ -35,8 +35,8 @@ export default function EditTripScreen() {
       await updateTrip(id!, {
         title: values.title.trim(),
         description: values.description.trim() || null,
-        startDate: values.startDate!.toISOString(),
-        endDate: values.endDate!.toISOString(),
+        startDate: values.startDate!.toISOString().split('T')[0],
+        endDate: values.endDate!.toISOString().split('T')[0],
       });
       router.back();
     } catch (err) {
