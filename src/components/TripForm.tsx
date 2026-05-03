@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { FormField } from './FormField';
 import { PrimaryButton } from './PrimaryButton';
 import { validateTripForm } from '../utils/tripValidators';
@@ -33,9 +33,19 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
     const errs = validateTripForm(values);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
+      Alert.alert(
+        'Formulaire incomplet',
+        Object.values(errs)
+          .map((m) => `• ${m}`)
+          .join('\n')
+      );
       return;
     }
-    await onSubmit(values);
+    try {
+      await onSubmit(values);
+    } catch (err) {
+      Alert.alert('Erreur', err instanceof Error ? err.message : 'Erreur inattendue.');
+    }
   };
 
   const adjustDate = (base: Date | null, days: number): Date => {
