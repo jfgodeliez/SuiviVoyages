@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FormField } from './FormField';
 import { PrimaryButton } from './PrimaryButton';
 import { validateTripForm } from '../utils/tripValidators';
@@ -13,14 +13,25 @@ interface Props {
   loading?: boolean;
 }
 
+function defaultStart(): Date {
+  return new Date();
+}
+
+function defaultEnd(): Date {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  return d;
+}
+
 export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer', loading }: Props) {
   const [values, setValues] = useState<TripFormValues>({
     title: initialValues?.title ?? '',
     description: initialValues?.description ?? '',
-    startDate: initialValues?.startDate ?? null,
-    endDate: initialValues?.endDate ?? null,
+    startDate: initialValues?.startDate ?? defaultStart(),
+    endDate: initialValues?.endDate ?? defaultEnd(),
   });
   const [errors, setErrors] = useState<TripFormErrors>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
@@ -30,21 +41,16 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
   };
 
   const handleSubmit = async () => {
+    setSubmitError(null);
     const errs = validateTripForm(values);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
-      Alert.alert(
-        'Formulaire incomplet',
-        Object.values(errs)
-          .map((m) => `• ${m}`)
-          .join('\n')
-      );
       return;
     }
     try {
       await onSubmit(values);
     } catch (err) {
-      Alert.alert('Erreur', err instanceof Error ? err.message : 'Erreur inattendue.');
+      setSubmitError(err instanceof Error ? err.message : 'Impossible de sauvegarder.');
     }
   };
 
@@ -53,6 +59,8 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
     d.setDate(d.getDate() + days);
     return d;
   };
+
+  const hasErrors = Object.keys(errors).length > 0;
 
   return (
     <View>
@@ -68,7 +76,7 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
       <Text style={styles.label}>Date de début *</Text>
       <View style={styles.dateRow}>
         <TouchableOpacity style={styles.dateButton} onPress={() => setShowStartPicker(true)}>
-          <Text style={[styles.dateText, !values.startDate && styles.placeholder]}>
+          <Text style={styles.dateText}>
             {values.startDate ? formatDate(values.startDate) : 'Choisir une date'}
           </Text>
         </TouchableOpacity>
@@ -89,7 +97,7 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
       <Text style={styles.label}>Date de fin *</Text>
       <View style={styles.dateRow}>
         <TouchableOpacity style={styles.dateButton} onPress={() => setShowEndPicker(true)}>
-          <Text style={[styles.dateText, !values.endDate && styles.placeholder]}>
+          <Text style={styles.dateText}>
             {values.endDate ? formatDate(values.endDate) : 'Choisir une date'}
           </Text>
         </TouchableOpacity>
@@ -107,7 +115,6 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
       </View>
       {errors.endDate ? <Text style={styles.error}>{errors.endDate}</Text> : null}
 
-      {/* DateTimePicker natif — monté dynamiquement pour éviter l'import conditionnel */}
       {(showStartPicker || showEndPicker) && (
         <NativeDatePicker
           value={
@@ -140,12 +147,25 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
       />
       <Text style={styles.charCount}>{values.description.length}/500</Text>
 
+      {hasErrors && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorBannerText}>
+            Corrigez les champs en rouge avant de continuer.
+          </Text>
+        </View>
+      )}
+
+      {submitError && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorBannerText}>{submitError}</Text>
+        </View>
+      )}
+
       <PrimaryButton title={submitLabel} onPress={handleSubmit} loading={loading} />
     </View>
   );
 }
 
-// Composant interne simplifié pour la sélection de date par boutons +/- (fonctionne sans plugin natif)
 function NativeDatePicker({
   value,
   minimumDate,
@@ -212,7 +232,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   dateText: { fontSize: 16, color: '#111' },
-  placeholder: { color: '#999' },
   dateShortcuts: { flexDirection: 'row', gap: 4 },
   shortcut: {
     backgroundColor: '#e8f0fe',
@@ -222,6 +241,15 @@ const styles = StyleSheet.create({
   },
   shortcutText: { fontSize: 12, color: '#1a73e8', fontWeight: '600' },
   error: { fontSize: 12, color: '#e53e3e', marginBottom: 12 },
+  errorBanner: {
+    backgroundColor: '#fff5f5',
+    borderWidth: 1,
+    borderColor: '#feb2b2',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+  },
+  errorBannerText: { color: '#c53030', fontSize: 14, fontWeight: '600' },
   textarea: { height: 100, textAlignVertical: 'top' },
   charCount: { fontSize: 11, color: '#999', textAlign: 'right', marginTop: -12, marginBottom: 16 },
 });
