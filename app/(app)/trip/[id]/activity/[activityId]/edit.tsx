@@ -79,7 +79,7 @@ export default function EditActivityScreen() {
         <Text style={styles.title}>Modifier l'activité</Text>
         <View style={{ width: 36 }} />
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {activity && (
           <ActivityForm
             initialValues={{

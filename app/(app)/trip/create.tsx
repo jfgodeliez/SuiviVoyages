@@ -35,7 +35,7 @@ export default function CreateTripScreen() {
         <Text style={styles.title}>Nouveau voyage</Text>
         <View style={{ width: 36 }} />
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TripForm onSubmit={handleSubmit} submitLabel="Créer le voyage" loading={loading} />
       </ScrollView>
     </View>

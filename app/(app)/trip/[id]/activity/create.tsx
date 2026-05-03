@@ -67,7 +67,7 @@ export default function CreateActivityScreen() {
         <Text style={styles.title}>Nouvelle activité</Text>
         <View style={{ width: 36 }} />
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <ActivityForm
           tripStart={new Date(trip.startDate + 'T00:00:00')}
           tripEnd={new Date(trip.endDate + 'T00:00:00')}
