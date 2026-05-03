@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { FormField } from './FormField';
 import { PrimaryButton } from './PrimaryButton';
 import { ACTIVITY_TYPES, validateActivityForm } from '../utils/activityValidators';
@@ -59,7 +59,7 @@ export function ActivityForm({
   };
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled">
+    <View>
       <FormField
         label="Titre de l'activité *"
         value={values.title}
@@ -162,7 +162,7 @@ export function ActivityForm({
       <Text style={styles.charCount}>{values.notes.length}/1000</Text>
 
       <PrimaryButton title={submitLabel} onPress={handleSubmit} loading={loading} />
-    </ScrollView>
+    </View>
   );
 }
 

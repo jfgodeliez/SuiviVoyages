@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FormField } from './FormField';
 import { PrimaryButton } from './PrimaryButton';
 import { validateTripForm } from '../utils/tripValidators';
@@ -45,7 +45,7 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
   };
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled">
+    <View>
       <FormField
         label="Titre du voyage *"
         value={values.title}
@@ -131,7 +131,7 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
       <Text style={styles.charCount}>{values.description.length}/500</Text>
 
       <PrimaryButton title={submitLabel} onPress={handleSubmit} loading={loading} />
-    </ScrollView>
+    </View>
   );
 }
 
