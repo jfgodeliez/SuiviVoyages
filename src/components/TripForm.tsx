@@ -50,7 +50,13 @@ export function TripForm({ initialValues, onSubmit, submitLabel = 'Enregistrer',
     try {
       await onSubmit(values);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Impossible de sauvegarder.');
+      const msg =
+        err instanceof Error
+          ? err.message
+          : err && typeof err === 'object' && 'message' in err
+            ? String((err as Record<string, unknown>).message)
+            : JSON.stringify(err);
+      setSubmitError(msg || 'Erreur inconnue');
     }
   };
 
