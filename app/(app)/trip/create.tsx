@@ -16,8 +16,8 @@ export default function CreateTripScreen() {
       const trip = await create({
         title: values.title.trim(),
         description: values.description.trim() || null,
-        startDate: values.startDate!.toISOString(),
-        endDate: values.endDate!.toISOString(),
+        startDate: values.startDate!.toISOString().split('T')[0],
+        endDate: values.endDate!.toISOString().split('T')[0],
       });
       router.replace(`/(app)/trip/${trip.id}`);
     } catch (err) {

@@ -10,15 +10,17 @@ import {
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { getTripById, updateTrip } from '../../../../src/services/tripService';
-import { TripForm } from '../../../../src/components/TripForm';
-import type { TripFormValues } from '../../../../src/utils/tripValidators';
-import type { TripWithParticipants } from '../../../../src/types/trip';
+import { ActivityForm } from '../../../../../src/components/ActivityForm';
+import { useActivities } from '../../../../../src/hooks/useActivities';
+import { getTripById } from '../../../../../src/services/tripService';
+import type { ActivityFormValues } from '../../../../../src/utils/activityValidators';
+import type { TripWithParticipants } from '../../../../../src/types/trip';
 
-export default function EditTripScreen() {
+export default function CreateActivityScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { create } = useActivities(id!);
   const [trip, setTrip] = useState<TripWithParticipants | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadingTrip, setLoadingTrip] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -26,29 +28,29 @@ export default function EditTripScreen() {
     getTripById(id)
       .then(setTrip)
       .catch(() => Alert.alert('Erreur', 'Voyage introuvable.'))
-      .finally(() => setIsLoading(false));
+      .finally(() => setLoadingTrip(false));
   }, [id]);
 
-  const handleSubmit = async (values: TripFormValues) => {
+  const handleSubmit = async (values: ActivityFormValues) => {
+    if (!id) return;
     setSaving(true);
     try {
-      await updateTrip(id!, {
+      await create(id, {
         title: values.title.trim(),
-        description: values.description.trim() || null,
-        startDate: values.startDate!.toISOString().split('T')[0],
-        endDate: values.endDate!.toISOString().split('T')[0],
+        type: values.type!,
+        date: values.date!.toISOString().split('T')[0],
+        time: values.time.trim() || null,
+        location: values.location.trim() || null,
+        notes: values.notes.trim() || null,
       });
       router.back();
     } catch (err) {
-      Alert.alert(
-        'Erreur',
-        err instanceof Error ? err.message : 'Impossible de modifier le voyage.'
-      );
+      Alert.alert('Erreur', err instanceof Error ? err.message : "Impossible de créer l'activité.");
       setSaving(false);
     }
   };
 
-  if (isLoading) {
+  if (loadingTrip || !trip) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#1a73e8" />
@@ -62,23 +64,17 @@ export default function EditTripScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={22} color="#111" />
         </TouchableOpacity>
-        <Text style={styles.title}>Modifier le voyage</Text>
+        <Text style={styles.title}>Nouvelle activité</Text>
         <View style={{ width: 36 }} />
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-        {trip && (
-          <TripForm
-            initialValues={{
-              title: trip.title,
-              description: trip.description ?? '',
-              startDate: new Date(trip.startDate),
-              endDate: new Date(trip.endDate),
-            }}
-            onSubmit={handleSubmit}
-            submitLabel="Enregistrer les modifications"
-            loading={saving}
-          />
-        )}
+        <ActivityForm
+          tripStart={new Date(trip.startDate + 'T00:00:00')}
+          tripEnd={new Date(trip.endDate + 'T00:00:00')}
+          onSubmit={handleSubmit}
+          submitLabel="Créer l'activité"
+          loading={saving}
+        />
       </ScrollView>
     </View>
   );

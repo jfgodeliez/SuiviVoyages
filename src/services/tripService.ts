@@ -1,11 +1,11 @@
 import { supabase } from './supabase';
 import type { Trip, CreateTripInput, UpdateTripInput, TripWithParticipants } from '../types/trip';
 
-export async function getTrips(userId: string): Promise<Trip[]> {
+export async function getTrips(_userId: string): Promise<Trip[]> {
+  // RLS policy (is_trip_member) filters to owned + shared trips automatically
   const { data, error } = await supabase
     .from('trips')
     .select('*')
-    .or(`owner_id.eq.${userId},trip_participants.user_id.eq.${userId}`)
     .order('start_date', { ascending: true });
   if (error) throw error;
   return (data ?? []).map(mapTrip);
