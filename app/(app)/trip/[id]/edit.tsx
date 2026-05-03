@@ -65,7 +65,7 @@ export default function EditTripScreen() {
         <Text style={styles.title}>Modifier le voyage</Text>
         <View style={{ width: 36 }} />
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {trip && (
           <TripForm
             initialValues={{
