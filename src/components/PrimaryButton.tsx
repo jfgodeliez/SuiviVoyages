@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { Pressable, Text, ActivityIndicator, StyleSheet } from 'react-native';
 
 interface Props {
   title: string;
@@ -9,15 +9,20 @@ interface Props {
 }
 
 export function PrimaryButton({ title, onPress, loading, disabled }: Props) {
+  const isDisabled = disabled || loading;
   return (
-    <TouchableOpacity
-      style={[styles.button, (disabled || loading) && styles.buttonDisabled]}
+    <Pressable
+      style={({ pressed }) => [
+        styles.button,
+        isDisabled && styles.buttonDisabled,
+        pressed && !isDisabled && styles.buttonPressed,
+      ]}
       onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
+      disabled={isDisabled}
+      accessibilityRole="button"
     >
       {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.text}>{title}</Text>}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -30,5 +35,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonDisabled: { backgroundColor: '#a0bcf5' },
+  buttonPressed: { backgroundColor: '#1557b0' },
   text: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });
