@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TripForm } from '../../../src/components/TripForm';
@@ -21,8 +21,8 @@ export default function CreateTripScreen() {
       });
       router.replace(`/(app)/trip/${trip.id}`);
     } catch (err) {
-      Alert.alert('Erreur', err instanceof Error ? err.message : 'Impossible de créer le voyage.');
       setLoading(false);
+      throw err; // remonte à TripForm qui l'affiche dans le bandeau rouge
     }
   };
 

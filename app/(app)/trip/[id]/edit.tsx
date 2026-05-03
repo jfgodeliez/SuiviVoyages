@@ -40,11 +40,8 @@ export default function EditTripScreen() {
       });
       router.back();
     } catch (err) {
-      Alert.alert(
-        'Erreur',
-        err instanceof Error ? err.message : 'Impossible de modifier le voyage.'
-      );
       setSaving(false);
+      throw err;
     }
   };
 
